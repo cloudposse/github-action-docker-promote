@@ -23,7 +23,7 @@ inputs:
   metadata:
     required: false
     description: "Get tags from git"
-    default: true
+    default: "true"
   login:
     description: 'Docker login'
     required: false
