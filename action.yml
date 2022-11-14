@@ -100,7 +100,7 @@ runs:
         TAGS=(${{ steps.meta.outputs.tags }})
         for value in "${TAGS[@]}"
         do
-          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }} ${value}
+          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
           docker push ${value}
         done
 
