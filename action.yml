@@ -79,11 +79,23 @@ runs:
         input: ${{ steps.meta.outputs.json }}
         script: '.tags | map(select(test("sha-\\w{8,}"))) | first | match("sha-\\w{8,}") | .string'
 
+    - name: Get `from` baseed on metadata
+      if: ${{ inputs.from == "" }}
+      id: from
+      uses: docker/metadata-action@v4
+      with:
+        tags: type=sha
+
+    - id: info
+      shell: bash
+      run: |
+        echo "from=${{ inputs.from}}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+
     - name: Promote
       id: promote
       shell: bash
       run: |
-        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }}
+        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }}
         TAGS=(${{ steps.meta.outputs.tags }})
         for value in "${TAGS[@]}"
         do
