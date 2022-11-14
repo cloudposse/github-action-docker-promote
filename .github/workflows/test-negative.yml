@@ -1,10 +1,10 @@
-name: Test example positive
+name: Docker promotion failed
 on:
-#  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
-#  #
-#  # Added pull_request to register workflow from the PR.
-#  # Read more https://stackoverflow.com/questions/63362126/github-actions-how-to-run-a-workflow-created-on-a-non-master-branch-from-the-wo
-#  pull_request: {}
+  #  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
+  #  #
+  #  # Added pull_request to register workflow from the PR.
+  #  # Read more https://stackoverflow.com/questions/63362126/github-actions-how-to-run-a-workflow-created-on-a-non-master-branch-from-the-wo
+  #  pull_request: {}
   workflow_dispatch: {}
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true
     needs: [setup]
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
           repository: 'github-action-docker-build-push'
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          from: 'main'
+          from: 'non-existing-tag'
           to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
 
     outputs:
@@ -42,8 +42,8 @@ jobs:
     steps:
       - uses: nick-fields/assert-action@v1
         with:
-          expected: 'success'
-          actual: "${{ needs.test.outputs.result }}"
+          expected: 'failure'
+          actual: ${{ needs.test.outputs.result }}
 
   teardown:
     runs-on: ubuntu-latest
