@@ -80,7 +80,7 @@ runs:
         script: '.tags | map(select(test("sha-\\w{8,}"))) | first | match("sha-\\w{8,}") | .string'
 
     - name: Get `from` baseed on metadata
-      if: ${{ inputs.from == "" }}
+      if: ${{ inputs.from == '' }}
       id: from
       uses: docker/metadata-action@v4
       with:
