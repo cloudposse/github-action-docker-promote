@@ -84,6 +84,7 @@ runs:
       id: from
       uses: docker/metadata-action@v4
       with:
+        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         tags: type=sha
 
     - id: info
