@@ -58,6 +58,8 @@ runs:
           type=raw,value=latest,enable={{is_default_branch}}
           type=sha,format=long
           ${{ inputs.to }}
+        flavor: |
+          latest=auto
         labels: |
           org.opencontainers.image.source=https://github.com/${{ inputs.organization }}/${{ inputs.repository }}
 
