@@ -45,7 +45,7 @@ runs:
       with:
         # list of Docker images to use as base name for tags
         images: |
-          ${{ secrets.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+          ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         # generate Docker tags based on the following events/attributes
         tags: |
           type=sha
@@ -81,11 +81,11 @@ runs:
       id: promote
       shell: bash
       run: |
-        docker pull ${{ secrets.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }}
+        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }}
         TAGS=(${{ steps.meta.outputs.tags }})
         for value in "${TAGS[@]}"
         do
-          docker tag ${{ secrets.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }} ${value}
+          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.from }} ${value}
           docker push ${value}
         done
 
