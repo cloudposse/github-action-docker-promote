@@ -20,7 +20,7 @@ inputs:
   to:
     required: false
     description: "Target tags"
-  metadata:
+  use_metadata:
     required: false
     description: "Get tags from git"
     default: "true"
