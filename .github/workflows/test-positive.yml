@@ -25,9 +25,9 @@ jobs:
       - uses: ./
         id: current
         with:
-          organization: ${{ github.event.repository.owner.login }}
-          repository: 'docker-build'
           registry: registry.hub.docker.com
+          organization: ${{ github.event.repository.owner.login }}
+          repository: 'github-action-docker-build-push'
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           from: 'main'
