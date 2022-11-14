@@ -34,8 +34,8 @@ inputs:
     default: ''
 outputs:
   success:
-    description: "Output result placeholder"
-    value: "${{ steps.context.outputs.action-result }}"
+    description: "Docker image promoted"
+    value: "${{ steps.result.outputs.success }}"
 runs:
   using: "composite"
   steps:
