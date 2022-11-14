@@ -27,7 +27,7 @@ jobs:
         with:
           registry: registry.hub.docker.com
           organization: ${{ github.event.repository.owner.login }}
-          repository: 'github-action-docker-build-push'
+          repository: ${{ github.event.repository.name }}
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           from: 'non-existing-tag'

@@ -22,15 +22,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Build
+        id: build
+        uses: cloudposse/github-action-docker-build-push@1.6.0
+        with:
+          registry: registry.hub.docker.com
+          organization: ${{ github.event.repository.owner.login }}
+          repository: ${{ github.event.repository.name }}
+          login: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          workdir: ./test
+
       - uses: ./
         id: current
         with:
           registry: registry.hub.docker.com
           organization: ${{ github.event.repository.owner.login }}
-          repository: 'github-action-docker-build-push'
+          repository: ${{ github.event.repository.name }}
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          from: 'main'
+          from: ${{ steps.build.outputs.tag }}
           to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
 
     outputs:
