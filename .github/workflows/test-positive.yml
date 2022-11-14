@@ -25,10 +25,16 @@ jobs:
       - uses: ./
         id: current
         with:
-          param1: 'true'
+          organization: ${{ github.event.repository.owner.login }}
+          repository: 'docker-build'
+          registry: registry.hub.docker.com
+          login: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          from: 'main'
+          to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
 
     outputs:
-      result: "${{ steps.current.outputs.result1 }}"
+      result: "${{ steps.current.outputs.success }}"
 
   assert:
     runs-on: ubuntu-latest
