@@ -1,14 +1,37 @@
-name: 'Example composite GitHub action'
-description: 'Example composite GitHub action'
+name: 'Docker promote'
+description: 'Promote docker image'
 author: hello@cloudposse.com
 branding:
-  icon: 'file'
+  icon: 'tag'
   color: 'white'
 inputs:
-  param1:
+  organization:
+    description: 'Organization'
     required: true
-    description: "Input parameter placeholder"
-    default: "true"
+  repository:
+    description: 'Repository'
+    required: true
+  registry:
+    description: 'Docker registry'
+    required: true
+  from:
+    required: false
+    description: "Source tag"
+  to:
+    required: false
+    description: "Target tags"
+  metadata:
+    required: false
+    description: "Get tags from git"
+    default: true
+  login:
+    description: 'Docker login'
+    required: false
+    default: ''
+  password:
+    description: 'Docker password'
+    required: false
+    default: ''
 outputs:
   result1:
     description: "Output result placeholder"
