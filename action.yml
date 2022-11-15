@@ -39,6 +39,30 @@ outputs: {}
 runs:
   using: "composite"
   steps:
+    - name: Login
+      uses: docker/login-action@v2
+      if: ${{ contains(inputs.registry, '.amazonaws.com') || ( inputs.login != '' && inputs.password != '' ) }}
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
+
+    - name: Get `from` baseed on metadata
+      if: ${{ inputs.from == '' }}
+      id: from
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+        tags: type=sha
+
+    - id: info
+      shell: bash
+      run: |
+        echo "from=${{ inputs.from }}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+
+    - uses: cutenode/action-always-fail@v1.0.0
+      if: ${{ inputs.use_metadata && inputs.to == '' }}
+
     - name: Docker meta
       id: meta
       if: ${{ inputs.use_metadata }}
@@ -63,35 +87,6 @@ runs:
           latest=auto
         labels: |
           org.opencontainers.image.source=https://github.com/${{ inputs.organization }}/${{ inputs.repository }}
-
-    - name: Login
-      uses: docker/login-action@v2
-      if: ${{ contains(inputs.registry, '.amazonaws.com') || ( inputs.login != '' && inputs.password != '' ) }}
-      with:
-        registry: ${{ inputs.registry }}
-        username: ${{ inputs.login }}
-        password: ${{ inputs.password }}
-
-    - uses: edwardgeorge/jq-action@main
-      id: tag
-      with:
-        compact: true
-        raw-output: true
-        input: ${{ steps.meta.outputs.json }}
-        script: '.tags | map(select(test("sha-\\w{8,}"))) | first | match("sha-\\w{8,}") | .string'
-
-    - name: Get `from` baseed on metadata
-      if: ${{ inputs.from == '' }}
-      id: from
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
-        tags: type=sha
-
-    - id: info
-      shell: bash
-      run: |
-        echo "from=${{ inputs.from }}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
 
     - name: Promote
       id: promote
