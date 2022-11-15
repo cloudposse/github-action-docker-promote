@@ -103,7 +103,7 @@ runs:
         if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
           TAGS=(${{ steps.meta.outputs.tags }})
         else
-          TAGS=(${{ inputs.to }})
+          TAGS=(${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.to }})
         fi
         
         for value in "${TAGS[@]}"
