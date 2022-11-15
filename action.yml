@@ -22,7 +22,7 @@ inputs:
     description: "Target tags"
   use_metadata:
     required: false
-    description: "Get tags from git"
+    description: "Extract target tags from Git reference and GitHub events"
     default: "true"
   login:
     description: 'Docker login'
@@ -32,10 +32,13 @@ inputs:
     description: 'Docker password'
     required: false
     default: ''
-outputs: {}
-#  success:
-#    description: "Docker image promoted"
-#    value: "${{ steps.result.outputs.success }}"
+outputs:
+  image:
+    description: "Docker image name"
+    value: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+  tag:
+    description: "Docker image tag"
+    value: ${{ steps.promote.outputs.tag }}
 runs:
   using: "composite"
   steps:
@@ -68,10 +71,7 @@ runs:
       if: ${{ inputs.use_metadata }}
       uses: docker/metadata-action@v4
       with:
-        # list of Docker images to use as base name for tags
-        images: |
-          ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
-        # generate Docker tags based on the following events/attributes
+        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         tags: |
           type=sha
           type=schedule
@@ -95,8 +95,10 @@ runs:
         docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }}
         if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
           TAGS=(${{ steps.meta.outputs.tags }})
+          echo "tag=${{ steps.meta.outputs.version }}" >> $GIHUB_OUTPUT
         else
           TAGS=(${{ inputs.to }})
+          echo "tag=${{ inputs.to }}" >> $GIHUB_OUTPUT
         fi
         
         for value in "${TAGS[@]}"

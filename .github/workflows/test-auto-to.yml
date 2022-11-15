@@ -45,6 +45,8 @@ jobs:
 
     outputs:
       result: ${{ steps.current.conclusion }}
+      image: ${{ steps.current.image }}
+      tag: ${{ steps.current.tag }}
 
   assert:
     runs-on: ubuntu-latest
@@ -54,6 +56,11 @@ jobs:
         with:
           expected: 'success'
           actual: "${{ needs.test.outputs.result }}"
+
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: registry.hub.docker.com/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}
+          actual: "${{ needs.test.outputs.image }}"
 
   teardown:
     runs-on: ubuntu-latest
