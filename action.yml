@@ -64,27 +64,37 @@ runs:
         tags: |
           type=sha,format=long,enabled=${{ inputs.from == '' }}
           type=raw,value=${{ inputs.from }},enabled=${{ inputs.from != '' }}
-        flavor: ""
+        flavor: latest=false
+
+    - uses: cloudposse/github-action-yaml-config-query@init
+      id: to_tags_config
+      with:
+        query: .${{ inputs.use_metadata == 'true' }}
+        config: |-
+          true: 
+            tags: |-        
+              type=sha
+              type=schedule
+              type=ref,event=branch
+              type=ref,event=pr
+              type=semver,pattern={{version}}
+              type=semver,pattern={{major}}.{{minor}}
+              type=semver,pattern={{major}}
+              type=raw,value=latest,enable={{is_default_branch}}
+              type=sha,format=long
+              ${{ inputs.to }}          
+            flavor: latest=auto
+          false: |-
+            tags: ${{ inputs.to }} 
+            flavor: latest=false
 
     - name: Docker meta
       id: meta
-      if: ${{ inputs.use_metadata }}
       uses: docker/metadata-action@v4
       with:
         images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
-        tags: |
-          ${{ inputs.to }}          
-          type=sha
-          type=schedule
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=semver,pattern={{major}}
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=sha,format=long
-        flavor: |
-          latest=auto
+        tags: ${{ steps.to_tags_config.outputs.tags }}
+        flavor: ${{ steps.to_tags_config.outputs.flavor }}
         labels: |
           org.opencontainers.image.source=https://github.com/${{ inputs.organization }}/${{ inputs.repository }}
 
@@ -100,11 +110,7 @@ runs:
           echo "tag=${{ inputs.to }}" >> $GITHUB_OUTPUT
         fi
         
-        if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
-          TAGS=(${{ steps.meta.outputs.tags }})
-        else
-          TAGS=(${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ inputs.to }})
-        fi
+        TAGS=(${{ steps.meta.outputs.tags }})
         
         for value in "${TAGS[@]}"
         do
