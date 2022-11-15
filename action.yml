@@ -95,10 +95,10 @@ runs:
         docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }}
         if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
           TAGS=(${{ steps.meta.outputs.tags }})
-          echo "tag=${{ steps.meta.outputs.version }}" >> $GIHUB_OUTPUT
+          echo "tag=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
         else
           TAGS=(${{ inputs.to }})
-          echo "tag=${{ inputs.to }}" >> $GIHUB_OUTPUT
+          echo "tag=${{ inputs.to }}" >> $GITHUB_OUTPUT
         fi
         
         for value in "${TAGS[@]}"
