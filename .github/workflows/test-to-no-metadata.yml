@@ -1,4 +1,4 @@
-name: Docker promote to specific to without metadata
+name: Docker promote specific `to` without metadata
 on:
 #  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
 #  #
