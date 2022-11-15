@@ -42,7 +42,7 @@ jobs:
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           from: ${{ steps.build.outputs.tag }}
-          to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+          to: 0.${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
           metadata: false
 
     outputs:
@@ -66,7 +66,7 @@ jobs:
 
       - uses: nick-fields/assert-action@v1
         with:
-          expected: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+          expected: 0.${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
           actual: "${{ needs.test.outputs.tag }}"
 
 
