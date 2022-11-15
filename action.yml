@@ -48,17 +48,14 @@ runs:
         password: ${{ inputs.password }}
 
     - name: Get `from` baseed on metadata
-      if: ${{ inputs.from == '' }}
       id: from
       uses: docker/metadata-action@v4
       with:
         images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
-        tags: type=sha
-
-    - id: info
-      shell: bash
-      run: |
-        echo "from=${{ inputs.from }}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+        tags: |
+          type=sha,enabled=${{ inputs.from == '' }}
+          ${{ inputs.from }}
+        flavor: ""
 
     - uses: cutenode/action-always-fail@v1.0.0
       if: ${{ inputs.use_metadata && inputs.to == '' }}
@@ -92,7 +89,7 @@ runs:
       id: promote
       shell: bash
       run: |
-        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }}
+        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }}
         if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
           TAGS=(${{ steps.meta.outputs.tags }})
         else
@@ -101,6 +98,6 @@ runs:
         
         for value in "${TAGS[@]}"
         do
-          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
+          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }} ${value}
           docker push ${value}
         done
