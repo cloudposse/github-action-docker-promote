@@ -41,6 +41,7 @@ runs:
   steps:
     - name: Docker meta
       id: meta
+      if: ${{ inputs.use_metadata }}
       uses: docker/metadata-action@v4
       with:
         # list of Docker images to use as base name for tags
@@ -48,18 +49,18 @@ runs:
           ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         # generate Docker tags based on the following events/attributes
         tags: |
-          type=sha,enable=${{ inputs.use_metadata }}
-          type=schedule,enable=${{ inputs.use_metadata }}
-          type=ref,event=branch,enable=${{ inputs.use_metadata }}
-          type=ref,event=pr,enable=${{ inputs.use_metadata }}
-          type=semver,pattern={{version}},enable=${{ inputs.use_metadata }}
-          type=semver,pattern={{major}}.{{minor}},enable=${{ inputs.use_metadata }}
-          type=semver,pattern={{major}},enable=${{ inputs.use_metadata }}
-          type=raw,value=latest,enable={{is_default_branch}},enable=${{ inputs.use_metadata }}
-          type=sha,format=long,enable=${{ inputs.use_metadata }}
+          type=sha
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=sha,format=long
           ${{ inputs.to }}
         flavor: |
-          latest=auto,enable=${{ inputs.use_metadata }}
+          latest=auto
         labels: |
           org.opencontainers.image.source=https://github.com/${{ inputs.organization }}/${{ inputs.repository }}
 
@@ -91,13 +92,18 @@ runs:
       shell: bash
       run: |
         echo "from=${{ inputs.from}}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+        if [[ "${{ inputs.use_metadata }}" ]]; then
+          echo "to=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
+        else
+          echo "to=${{ inputs.to }}" >> $GITHUB_OUTPUT
+        fi;
 
     - name: Promote
       id: promote
       shell: bash
       run: |
         docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }}
-        TAGS=(${{ steps.meta.outputs.tags }})
+        TAGS=(${{ steps.info.outputs.to }})
         for value in "${TAGS[@]}"
         do
           docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
