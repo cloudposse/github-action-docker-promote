@@ -63,7 +63,7 @@ runs:
         images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         tags: |
           type=sha,format=long,enabled=${{ inputs.from == '' }}
-          ${{ inputs.from }}
+          type=raw,value=${{ inputs.from }},enabled=${{ inputs.from != '' }}
         flavor: ""
 
     - name: Docker meta
