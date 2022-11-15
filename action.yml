@@ -58,7 +58,7 @@ runs:
         flavor: ""
 
     - uses: cutenode/action-always-fail@v1.0.0
-      if: ${{ inputs.use_metadata && inputs.to == '' }}
+      if: ${{ ! inputs.use_metadata && inputs.to == '' }}
 
     - name: Docker meta
       id: meta
