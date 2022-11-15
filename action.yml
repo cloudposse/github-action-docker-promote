@@ -46,7 +46,7 @@ runs:
       uses: nick-fields/assert-action@v1
       with:
         expected: true
-        actual: ${{ inputs.use_metadata || ( inputs.to != '' ) }}
+        actual: ${{ inputs.use_metadata || inputs.to != '' }}
 
     - name: Login
       uses: docker/login-action@v2
