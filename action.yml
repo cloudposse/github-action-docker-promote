@@ -92,7 +92,7 @@ runs:
       id: promote
       shell: bash
       run: |
-        docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }}
+        docker pull ${{ steps.from.outputs.tags }}
         
         if [[ "${{ inputs.to }}" == "" ]]; then
           echo "tag=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
@@ -108,6 +108,6 @@ runs:
         
         for value in "${TAGS[@]}"
         do
-          docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.from.outputs.version }} ${value}
+          docker tag ${{ steps.from.outputs.tags }} ${value}
           docker push ${value}
         done
