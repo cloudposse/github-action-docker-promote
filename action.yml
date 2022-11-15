@@ -62,7 +62,7 @@ runs:
       with:
         images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         tags: |
-          type=sha,enabled=${{ inputs.from == '' }}
+          type=sha,format=long,enabled=${{ inputs.from == '' }}
           ${{ inputs.from }}
         flavor: ""
 
