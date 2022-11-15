@@ -41,6 +41,7 @@ runs:
   steps:
     - name: Docker meta
       id: meta
+      if: ${{ inputs.to == '' }}
       uses: docker/metadata-action@v4
       with:
         # list of Docker images to use as base name for tags
@@ -57,7 +58,6 @@ runs:
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
           type=sha,format=long
-          ${{ inputs.to }}
         flavor: |
           latest=auto
         labels: |
@@ -91,13 +91,14 @@ runs:
       shell: bash
       run: |
         echo "from=${{ inputs.from}}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+        echo "to=${{ inputs.to }}\n${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
 
     - name: Promote
       id: promote
       shell: bash
       run: |
         docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }}
-        TAGS=(${{ steps.meta.outputs.tags }})
+        TAGS=(${{ steps.info.outputs.to }})
         for value in "${TAGS[@]}"
         do
           docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
