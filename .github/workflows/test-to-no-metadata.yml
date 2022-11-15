@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           from: ${{ steps.build.outputs.tag }}
           to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
-          metadata: false
+          use_metadata: false
 
     outputs:
       result: ${{ steps.current.conclusion }}
