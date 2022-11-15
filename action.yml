@@ -92,18 +92,18 @@ runs:
       shell: bash
       run: |
         echo "from=${{ inputs.from }}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
-        if [[ "${{ inputs.use_metadata }}" == "true" ]] then
-          echo "to=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
-        else
-          echo "to=${{ inputs.to }}" >> $GITHUB_OUTPUT
-        fi
 
     - name: Promote
       id: promote
       shell: bash
       run: |
         docker pull ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }}
-        TAGS=(${{ steps.info.outputs.to }})
+        if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
+          TAGS=(${{ steps.meta.outputs.tags }})
+        else
+          TAGS=(${{ inputs.to }})
+        fi
+        
         for value in "${TAGS[@]}"
         do
           docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
