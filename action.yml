@@ -73,6 +73,7 @@ runs:
       with:
         images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
         tags: |
+          ${{ inputs.to }}          
           type=sha
           type=schedule
           type=ref,event=branch
@@ -82,7 +83,6 @@ runs:
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
           type=sha,format=long
-          ${{ inputs.to }}
         flavor: |
           latest=auto
         labels: |
