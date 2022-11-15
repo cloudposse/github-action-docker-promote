@@ -84,7 +84,7 @@ runs:
               type=sha,format=long
               ${{ inputs.to }}          
             flavor: latest=auto
-          false: |-
+          false:
             tags: ${{ inputs.to }} 
             flavor: latest=false
 
