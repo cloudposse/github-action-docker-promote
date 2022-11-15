@@ -45,8 +45,8 @@ jobs:
 
     outputs:
       result: ${{ steps.current.conclusion }}
-      image: ${{ steps.current.image }}
-      tag: ${{ steps.current.tag }}
+      image: ${{ steps.current.outputs.image }}
+      tag: ${{ steps.current.outputs.tag }}
 
   assert:
     runs-on: ubuntu-latest
