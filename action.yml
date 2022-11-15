@@ -92,7 +92,7 @@ runs:
       shell: bash
       run: |
         echo "from=${{ inputs.from}}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
-        if [[ "${{ inputs.use_metadata }}" ]]; then
+        if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
           echo "to=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
         else
           echo "to=${{ inputs.to }}" >> $GITHUB_OUTPUT
