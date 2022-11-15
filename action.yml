@@ -35,10 +35,10 @@ inputs:
 outputs:
   image:
     description: "Docker image name"
-    value: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+    value: ${{ steps.context.outputs.image }}
   tag:
     description: "Docker image tag"
-    value: ${{ steps.promote.outputs.tag }}
+    value: ${{ steps.result.outputs.tag }}
 runs:
   using: "composite"
   steps:
@@ -48,6 +48,13 @@ runs:
         expected: true
         actual: ${{ ( inputs.use_metadata == 'true' ) || ( inputs.to != '' ) }}
 
+    - uses: cloudposse/github-action-yaml-config-query@init
+      id: context
+      with:
+        query: .
+        config: |-
+          image : ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+
     - name: Login
       uses: docker/login-action@v2
       if: ${{ contains(inputs.registry, '.amazonaws.com') || ( inputs.login != '' && inputs.password != '' ) }}
@@ -56,14 +63,22 @@ runs:
         username: ${{ inputs.login }}
         password: ${{ inputs.password }}
 
+    - uses: cloudposse/github-action-yaml-config-query@init
+      id: from_tags_config
+      with:
+        query: .${{ inputs.from == '' }}
+        config: |-
+          true: 
+            tags: type=sha,format=long
+          false:
+            tags: ${{ inputs.from }}
+
     - name: Get `from` baseed on metadata
       id: from
       uses: docker/metadata-action@v4
       with:
-        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
-        tags: |
-          type=sha,format=long,enabled=${{ inputs.from == '' }}
-          type=raw,value=${{ inputs.from }},enabled=${{ inputs.from != '' }}
+        images: ${{ steps.context.outputs.image }}
+        tags: ${{ steps.from_tags_config.outputs.tags }}
         flavor: latest=false
 
     - uses: cloudposse/github-action-yaml-config-query@init
@@ -92,11 +107,9 @@ runs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+        images: ${{ steps.context.outputs.image }}
         tags: ${{ steps.to_tags_config.outputs.tags }}
         flavor: ${{ steps.to_tags_config.outputs.flavor }}
-        labels: |
-          org.opencontainers.image.source=https://github.com/${{ inputs.organization }}/${{ inputs.repository }}
 
     - name: Promote
       id: promote
@@ -104,16 +117,19 @@ runs:
       run: |
         docker pull ${{ steps.from.outputs.tags }}
         
-        if [[ "${{ inputs.to }}" == "" ]]; then
-          echo "tag=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
-        else
-          echo "tag=${{ inputs.to }}" >> $GITHUB_OUTPUT
-        fi
-        
-        TAGS=(${{ steps.meta.outputs.tags }})
-        
+        TAGS=(${{ steps.meta.outputs.tags }})        
         for value in "${TAGS[@]}"
         do
           docker tag ${{ steps.from.outputs.tags }} ${value}
           docker push ${value}
         done
+
+    - uses: cloudposse/github-action-yaml-config-query@init
+      id: result
+      with:
+        query: .${{ inputs.to == '' }}
+        config: |-
+          true: 
+            tag: ${{ steps.meta.outputs.version }}
+          false:
+            tag: ${{ inputs.to }}
