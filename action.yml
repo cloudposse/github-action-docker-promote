@@ -32,10 +32,10 @@ inputs:
     description: 'Docker password'
     required: false
     default: ''
-outputs:
-  success:
-    description: "Docker image promoted"
-    value: "${{ steps.result.outputs.success }}"
+outputs: {}
+#  success:
+#    description: "Docker image promoted"
+#    value: "${{ steps.result.outputs.success }}"
 runs:
   using: "composite"
   steps:
@@ -91,12 +91,12 @@ runs:
     - id: info
       shell: bash
       run: |
-        echo "from=${{ inputs.from}}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
-        if [[ "${{ inputs.use_metadata }}" == "true" ]]; then
+        echo "from=${{ inputs.from }}${{ steps.from.outputs.version }}" >> $GITHUB_OUTPUT
+        if [[ "${{ inputs.use_metadata }}" == "true" ]] then
           echo "to=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
         else
           echo "to=${{ inputs.to }}" >> $GITHUB_OUTPUT
-        fi;
+        fi
 
     - name: Promote
       id: promote
@@ -109,8 +109,3 @@ runs:
           docker tag ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:${{ steps.info.outputs.from }} ${value}
           docker push ${value}
         done
-
-    - id: result
-      shell: bash
-      run: |
-        echo "success=true" >> $GITHUB_OUTPUT
