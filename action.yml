@@ -1,23 +1,135 @@
-name: 'Example composite GitHub action'
-description: 'Example composite GitHub action'
+name: 'Docker promote'
+description: 'Promote docker image'
 author: hello@cloudposse.com
 branding:
-  icon: 'file'
+  icon: 'tag'
   color: 'white'
 inputs:
-  param1:
+  organization:
+    description: 'Organization'
     required: true
-    description: "Input parameter placeholder"
+  repository:
+    description: 'Repository'
+    required: true
+  registry:
+    description: 'Docker registry'
+    required: true
+  from:
+    required: false
+    description: "Source tag"
+  to:
+    required: false
+    description: "Target tags"
+  use_metadata:
+    required: false
+    description: "Extract target tags from Git reference and GitHub events"
     default: "true"
+  login:
+    description: 'Docker login'
+    required: false
+    default: ''
+  password:
+    description: 'Docker password'
+    required: false
+    default: ''
 outputs:
-  result1:
-    description: "Output result placeholder"
-    value: "${{ steps.context.outputs.action-result }}"
+  image:
+    description: "Docker image name"
+    value: ${{ steps.context.outputs.image }}
+  tag:
+    description: "Docker image tag"
+    value: ${{ steps.result.outputs.tag }}
 runs:
   using: "composite"
   steps:
-    - id: context
+    - name: Validate inputs - `use_metadata` should be true or `to` should not be empty
+      uses: nick-fields/assert-action@v1
+      with:
+        expected: true
+        actual: ${{ ( inputs.use_metadata == 'true' ) || ( inputs.to != '' ) }}
+
+    - uses: cloudposse/github-action-yaml-config-query@0.1.0
+      id: context
+      with:
+        query: .
+        config: |-
+          image : ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+
+    - name: Login
+      uses: docker/login-action@v2
+      if: ${{ contains(inputs.registry, '.amazonaws.com') || ( inputs.login != '' && inputs.password != '' ) }}
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.login }}
+        password: ${{ inputs.password }}
+
+    - uses: cloudposse/github-action-yaml-config-query@0.1.0
+      id: from_tags_config
+      with:
+        query: .${{ inputs.from == '' }}
+        config: |-
+          true: 
+            tags: type=sha,format=long
+          false:
+            tags: ${{ inputs.from }}
+
+    - name: Get `from` baseed on metadata
+      id: from
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ steps.context.outputs.image }}
+        tags: ${{ steps.from_tags_config.outputs.tags }}
+        flavor: latest=false
+
+    - uses: cloudposse/github-action-yaml-config-query@0.1.0
+      id: to_tags_config
+      with:
+        query: .${{ inputs.use_metadata == 'true' }}
+        config: |-
+          true: 
+            tags: |-        
+              type=sha
+              type=schedule
+              type=ref,event=branch
+              type=ref,event=pr
+              type=semver,pattern={{version}}
+              type=semver,pattern={{major}}.{{minor}}
+              type=semver,pattern={{major}}
+              type=raw,value=latest,enable={{is_default_branch}}
+              type=sha,format=long
+              ${{ inputs.to }}          
+            flavor: latest=auto
+          false:
+            tags: ${{ inputs.to }} 
+            flavor: latest=false
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ steps.context.outputs.image }}
+        tags: ${{ steps.to_tags_config.outputs.tags }}
+        flavor: ${{ steps.to_tags_config.outputs.flavor }}
+
+    - name: Promote
+      id: promote
       shell: bash
       run: |
-          echo "::set-output name=action-result::${{ inputs.param1 }}"
+        docker pull ${{ steps.from.outputs.tags }}
+        
+        TAGS=(${{ steps.meta.outputs.tags }})        
+        for value in "${TAGS[@]}"
+        do
+          docker tag ${{ steps.from.outputs.tags }} ${value}
+          docker push ${value}
+        done
 
+    - uses: cloudposse/github-action-yaml-config-query@0.1.0
+      id: result
+      with:
+        query: .${{ inputs.to == '' }}
+        config: |-
+          true: 
+            tag: ${{ steps.meta.outputs.version }}
+          false:
+            tag: ${{ inputs.to }}

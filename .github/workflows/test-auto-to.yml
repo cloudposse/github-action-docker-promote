@@ -1,4 +1,4 @@
-name: Docker promote
+name: Docker promotion with auto discovery `to`
 on:
 #  # Uncomment when test added first time to register workflow and comment it back after workflow would be registered
 #  #
@@ -42,7 +42,6 @@ jobs:
           login: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           from: ${{ steps.build.outputs.tag }}
-          to: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
 
     outputs:
       result: ${{ steps.current.conclusion }}
@@ -62,12 +61,6 @@ jobs:
         with:
           expected: registry.hub.docker.com/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}
           actual: "${{ needs.test.outputs.image }}"
-
-      - uses: nick-fields/assert-action@v1
-        with:
-          expected: ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
-          actual: "${{ needs.test.outputs.tag }}"
-
 
   teardown:
     runs-on: ubuntu-latest
