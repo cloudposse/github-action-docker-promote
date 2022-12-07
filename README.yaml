@@ -5,11 +5,12 @@
 #
 
 # Name of this project
-name: example-github-action-composite
+name: github-action-docker-promote
 
 # Tags of this project
 tags:
   - github-action
+  - docker
 
 # Logo for this project
 #logo: docs/logo.png
@@ -18,27 +19,37 @@ tags:
 license: "APACHE2"
 
 # Canonical GitHub repo
-github_repo: cloudposse/example-github-action-composite
+github_repo: cloudposse/github-action-docker-promote
 
 # Badges to display
 badges:
   - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/example-github-action-composite.svg"
-    url: "https://github.com/cloudposse/example-github-action-composite/releases/latest"
+    image: "https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg"
+    url: "https://github.com/cloudposse/github-action-docker-promote/releases/latest"
   - name: "Slack Community"
     image: "https://slack.cloudposse.com/badge.svg"
     url: "https://slack.cloudposse.com"
 
-related: []
+related:
+  - name: "github-action-docker-build-push"
+    description: "Build Docker image and push it"
+    url: "https://github.com/cloudposse/github-action-docker-build-push"
+  - name: "github-action-docker-image-exists"
+    description: "Check if docker image exists by pulling it"
+    url: "https://github.com/cloudposse/github-action-docker-image-exists"
+
 
 # Short description of this project
-description: Template repository of composite GitHub Action
+description: Promote docker image
 
 introduction: |-
-  This is template repository to create composite GitHub Actions. 
-  Feel free to use it as reference and starting point.
+  Promote Docker image to specific tags provided explicitly or implicitly with 
+  [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)  
 
 references:
+  - name: "docker-metadata-action"
+    description: "GitHub Action to extract metadata from Git reference and GitHub events."
+    url: "https://github.com/marketplace/actions/docker-metadata-action"
   - name: "github-actions-workflows"
     description: "Reusable workflows for different types of projects"
     url: "https://github.com/cloudposse/github-actions-workflows"
@@ -48,6 +59,45 @@ references:
 
 # How to use this project
 usage: |-
+  ### Promote a docker image to specific tag
+  
+  ```yaml
+    name: Release
+    on:
+      release:
+        types: [published]
+    
+    permissions:
+      id-token: write
+      contents: write
+    
+    jobs:
+      promote:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Docker image promote
+            uses: cloudposse/github-action-docker-promote@main
+            id: promote
+            with:
+              registry: registry.hub.docker.com
+              organization: ${{ github.event.repository.owner.login }}
+              repository: ${{ github.event.repository.name }}
+              login: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_PASSWORD }}
+              from: sha-${{ github.sha }}
+              to: ${{ github.event.release.tag_name }}
+              use_metadata: false
+  
+        outputs:
+          image: ${{ steps.promote.outputs.image }}
+          tag: ${{ steps.promote.outputs.tag }}  
+  ```
+    
+  ### Promote a docker image to tags detected from metadata
+  
+  Promote action use [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action) under the 
+  hood and can detect `to` tags based on Git reference and GitHub events. 
+  
   ```yaml
     name: Pull Request
     on:
@@ -59,14 +109,70 @@ usage: |-
       context:
         runs-on: ubuntu-latest
         steps:
-          - name: Example action
-            uses: cloudposse/example-github-action-composite@main
-            id: example
+  
+          - name: Checkout
+            uses: actions/checkout@v3
             with:
-              param1: true
+              fetch-depth: 2
+  
+          - name: Get previous commit
+            id: prev-commit
+            run: echo "sha=$(git rev-parse --verify HEAD^1)" >> $GITHUB_OUTPUT
+
+          - name: Docker image promote
+            uses: cloudposse/github-action-docker-promote@main
+            id: promote
+            with:
+              registry: registry.hub.docker.com
+              organization: ${{ github.event.repository.owner.login }}
+              repository: ${{ github.event.repository.name }}
+              login: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_PASSWORD }}
+              from: sha-${{ steps.prev-commit.outputs.sha }}
+              use_metadata: true
   
         outputs:
-          result: ${{ steps.example.outputs.result1 }}
+          image: ${{ steps.promote.outputs.image }}
+          tag: ${{ steps.promote.outputs.tag }}  
+  ```
+
+  ### Promote a docker image with `from` fetched from metadata
+
+  If you skip `from` tag then it would be populated as SHA of the current commit in long format.
+  
+  ```yaml
+    name: Release
+    on:
+      release:
+        types: [published]
+
+    permissions:
+      id-token: write
+      contents: write
+
+    jobs:
+      promote:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+  
+          - name: Docker image promote
+            uses: cloudposse/github-action-docker-promote@main
+            id: promote
+            with:
+              registry: registry.hub.docker.com
+              organization: ${{ github.event.repository.owner.login }}
+              repository: ${{ github.event.repository.name }}
+              login: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_PASSWORD }}
+              ## `from` is long SHA
+              to: ${{ github.event.release.tag_name }}
+              use_metadata: true
+
+        outputs:
+          image: ${{ steps.promote.outputs.image }}
+          tag: ${{ steps.promote.outputs.tag }}  
   ```
 
 include:
