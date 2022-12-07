@@ -96,17 +96,27 @@ Feel free to use it as reference and starting point.
 
 
 <!-- markdownlint-disable -->
+
 ## Inputs
 
 | Name | Description | Default | Required |
 |------|-------------|---------|----------|
-| param1 | Input parameter placeholder | true | true |
+| from | Source tag | N/A | false |
+| login | Docker login |  | false |
+| organization | Organization | N/A | true |
+| password | Docker password |  | false |
+| registry | Docker registry | N/A | true |
+| repository | Repository | N/A | true |
+| to | Target tags | N/A | false |
+| use\_metadata | Extract target tags from Git reference and GitHub events | true | false |
+
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| result1 | Output result placeholder |
+| image | Docker image name |
+| tag | Docker image tag |
 <!-- markdownlint-restore -->
 
 
