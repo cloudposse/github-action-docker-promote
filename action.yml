@@ -14,6 +14,10 @@ inputs:
   registry:
     description: 'Docker registry'
     required: true
+  image_name:
+    description: "Image name (excluding registry). Defaults to {{$organization/$repository}}."
+    required: false
+    default: ''
   from:
     required: false
     description: "Source tag"
@@ -51,9 +55,12 @@ runs:
     - uses: cloudposse/github-action-yaml-config-query@0.1.3
       id: context
       with:
-        query: .
+        query: .${{ inputs.image_name == '' }}
         config: |-
-          image : ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+          true:
+            image : ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
+          false:
+            image : ${{ inputs.registry }}/${{ inputs.image_name }}
 
     - name: Login
       uses: docker/login-action@v2
