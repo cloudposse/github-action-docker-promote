@@ -5,6 +5,7 @@
 | Name | Description | Default | Required |
 |------|-------------|---------|----------|
 | from | Source tag | N/A | false |
+| image\_name | Image name (excluding registry). Defaults to {{$organization/$repository}}. |  | false |
 | login | Docker login |  | false |
 | organization | Organization | N/A | true |
 | password | Docker password |  | false |
