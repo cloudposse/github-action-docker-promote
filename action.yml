@@ -82,7 +82,7 @@ runs:
 
     - name: Get `from` baseed on metadata
       id: from
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: ${{ steps.context.outputs.image }}
         tags: ${{ steps.from_tags_config.outputs.tags }}
@@ -112,7 +112,7 @@ runs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: ${{ steps.context.outputs.image }}
         tags: ${{ steps.to_tags_config.outputs.tags }}
