@@ -52,7 +52,7 @@ runs:
         expected: true
         actual: ${{ ( inputs.use_metadata == 'true' ) || ( inputs.to != '' ) }}
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: context
       with:
         query: .${{ inputs.image_name == '' }}
@@ -70,7 +70,7 @@ runs:
         username: ${{ inputs.login }}
         password: ${{ inputs.password }}
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: from_tags_config
       with:
         query: .${{ inputs.from == '' }}
@@ -88,7 +88,7 @@ runs:
         tags: ${{ steps.from_tags_config.outputs.tags }}
         flavor: latest=false
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: to_tags_config
       with:
         query: .${{ inputs.use_metadata == 'true' }}
@@ -131,7 +131,7 @@ runs:
           docker push ${value}
         done
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: result
       with:
         query: .${{ inputs.to == '' }}
