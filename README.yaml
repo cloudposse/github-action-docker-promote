@@ -1,4 +1,3 @@
----
 #
 # This is the canonical configuration for the `README.md`
 # Run `make readme` to rebuild the `README.md`
@@ -23,13 +22,17 @@ github_repo: cloudposse/github-action-docker-promote
 
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg"
-    url: "https://github.com/cloudposse/github-action-docker-promote/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/badge.svg"
-    url: "https://slack.cloudposse.com"
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg?style=for-the-badge
+    url: https://github.com/cloudposse/github-action-docker-promote/releases/latest
+  - name: Last Updated
+    image: https://img.shields.io/github/last-commit/cloudposse/github-action-docker-promote.svg?style=for-the-badge
+    url: https://github.com/cloudposse/github-action-docker-promote/commits
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://cloudposse.com/slack
 
+# List any related terraform modules that this module may be used with or that this module depends on.
 related:
   - name: "github-action-docker-build-push"
     description: "Build Docker image and push it"
@@ -60,7 +63,7 @@ references:
 # How to use this project
 usage: |-
   ### Promote a docker image to specific tag
-  
+
   ```yaml
     name: Release
     on:
@@ -87,17 +90,17 @@ usage: |-
               from: sha-${{ github.sha }}
               to: ${{ github.event.release.tag_name }}
               use_metadata: false
-  
+
         outputs:
           image: ${{ steps.promote.outputs.image }}
           tag: ${{ steps.promote.outputs.tag }}  
   ```
     
   ### Promote a docker image to tags detected from metadata
-  
+
   Promote action use [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action) under the 
   hood and can detect `to` tags based on Git reference and GitHub events. 
-  
+
   ```yaml
     name: Pull Request
     on:
@@ -109,12 +112,12 @@ usage: |-
       context:
         runs-on: ubuntu-latest
         steps:
-  
+
           - name: Checkout
             uses: actions/checkout@v3
             with:
               fetch-depth: 2
-  
+
           - name: Get previous commit
             id: prev-commit
             run: echo "sha=$(git rev-parse --verify HEAD^1)" >> $GITHUB_OUTPUT
@@ -130,7 +133,7 @@ usage: |-
               password: ${{ secrets.DOCKERHUB_PASSWORD }}
               from: sha-${{ steps.prev-commit.outputs.sha }}
               use_metadata: true
-  
+
         outputs:
           image: ${{ steps.promote.outputs.image }}
           tag: ${{ steps.promote.outputs.tag }}  
@@ -139,7 +142,7 @@ usage: |-
   ### Promote a docker image with `from` fetched from metadata
 
   If you skip `from` tag then it would be populated as SHA of the current commit in long format.
-  
+
   ```yaml
     name: Release
     on:
@@ -156,7 +159,7 @@ usage: |-
         steps:
           - name: Checkout
             uses: actions/checkout@v3
-  
+
           - name: Docker image promote
             uses: cloudposse/github-action-docker-promote@main
             id: promote
@@ -175,10 +178,5 @@ usage: |-
           tag: ${{ steps.promote.outputs.tag }}  
   ```
 
-include:
-  - "docs/github-action.md"
-
-# Contributors to this project
-contributors:
-  - name: "Igor Rodionov"
-    github: "goruha"
+include: []
+contributors: []
