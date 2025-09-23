@@ -1,8 +1,6 @@
-
-
 <!-- markdownlint-disable -->
-<a href="https://cpco.io/homepage"><img src="https://github.com/cloudposse/github-action-docker-promote/blob/main/.github/banner.png?raw=true" alt="Project Banner"/></a><br/>
 
+<a href="https://cpco.io/homepage"><img src="https://github.com/cloudposse/github-action-docker-promote/blob/main/.github/banner.png?raw=true" alt="Project Banner"/></a><br/>
 
 <p align="right"><a href="https://github.com/cloudposse/github-action-docker-promote/releases/latest"><img src="https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg?style=for-the-badge" alt="Latest Release"/></a><a href="https://github.com/cloudposse/github-action-docker-promote/commits"><img src="https://img.shields.io/github/last-commit/cloudposse/github-action-docker-promote.svg?style=for-the-badge" alt="Last Updated"/></a><a href="https://cloudposse.com/slack"><img src="https://slack.cloudposse.com/for-the-badge.svg" alt="Slack Community"/></a>
 
@@ -32,94 +30,87 @@
 
 Promote docker image
 
-
-
-
 ## Introduction
 
-Promote Docker image to specific tags provided explicitly or implicitly with 
-[Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)  
-
-
-
+Promote Docker image to specific tags provided explicitly or implicitly with
+[Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
 
 ## Usage
 
 ### Promote a docker image to specific tag
 
 ```yaml
-  name: Release
-  on:
-    release:
-      types: [published]
-  
-  permissions:
-    id-token: write
-    contents: write
-  
-  jobs:
-    promote:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Docker image promote
-          uses: cloudposse/github-action-docker-promote@main
-          id: promote
-          with:
-            registry: registry.hub.docker.com
-            organization: ${{ github.event.repository.owner.login }}
-            repository: ${{ github.event.repository.name }}
-            login: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_PASSWORD }}
-            from: sha-${{ github.sha }}
-            to: ${{ github.event.release.tag_name }}
-            use_metadata: false
+name: Release
+on:
+  release:
+    types: [published]
 
-      outputs:
-        image: ${{ steps.promote.outputs.image }}
-        tag: ${{ steps.promote.outputs.tag }}  
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker image promote
+        uses: cloudposse/github-action-docker-promote@main
+        id: promote
+        with:
+          registry: registry.hub.docker.com
+          organization: ${{ github.event.repository.owner.login }}
+          repository: ${{ github.event.repository.name }}
+          login: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          from: sha-${{ github.sha }}
+          to: ${{ github.event.release.tag_name }}
+          use_metadata: false
+
+    outputs:
+      image: ${{ steps.promote.outputs.image }}
+      tag: ${{ steps.promote.outputs.tag }}
 ```
-  
+
 ### Promote a docker image to tags detected from metadata
 
-Promote action use [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action) under the 
-hood and can detect `to` tags based on Git reference and GitHub events. 
+Promote action use [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action) under the
+hood and can detect `to` tags based on Git reference and GitHub events.
 
 ```yaml
-  name: Pull Request
-  on:
-    pull_request:
-      branches: [ 'main' ]
-      types: [opened, synchronize, reopened, closed, labeled, unlabeled]
+name: Pull Request
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened, closed, labeled, unlabeled]
 
-  jobs:
-    context:
-      runs-on: ubuntu-latest
-      steps:
+jobs:
+  context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 2
+      - name: Get previous commit
+        id: prev-commit
+        run: echo "sha=$(git rev-parse --verify HEAD^1)" >> $GITHUB_OUTPUT
 
-        - name: Get previous commit
-          id: prev-commit
-          run: echo "sha=$(git rev-parse --verify HEAD^1)" >> $GITHUB_OUTPUT
+      - name: Docker image promote
+        uses: cloudposse/github-action-docker-promote@main
+        id: promote
+        with:
+          registry: registry.hub.docker.com
+          organization: ${{ github.event.repository.owner.login }}
+          repository: ${{ github.event.repository.name }}
+          login: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          from: sha-${{ steps.prev-commit.outputs.sha }}
+          use_metadata: true
 
-        - name: Docker image promote
-          uses: cloudposse/github-action-docker-promote@main
-          id: promote
-          with:
-            registry: registry.hub.docker.com
-            organization: ${{ github.event.repository.owner.login }}
-            repository: ${{ github.event.repository.name }}
-            login: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_PASSWORD }}
-            from: sha-${{ steps.prev-commit.outputs.sha }}
-            use_metadata: true
-
-      outputs:
-        image: ${{ steps.promote.outputs.image }}
-        tag: ${{ steps.promote.outputs.tag }}  
+    outputs:
+      image: ${{ steps.promote.outputs.image }}
+      tag: ${{ steps.promote.outputs.tag }}
 ```
 
 ### Promote a docker image with `from` fetched from metadata
@@ -127,73 +118,70 @@ hood and can detect `to` tags based on Git reference and GitHub events.
 If you skip `from` tag then it would be populated as SHA of the current commit in long format.
 
 ```yaml
-  name: Release
-  on:
-    release:
-      types: [published]
+name: Release
+on:
+  release:
+    types: [published]
 
-  permissions:
-    id-token: write
-    contents: write
+permissions:
+  id-token: write
+  contents: write
 
-  jobs:
-    promote:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-        - name: Docker image promote
-          uses: cloudposse/github-action-docker-promote@main
-          id: promote
-          with:
-            registry: registry.hub.docker.com
-            organization: ${{ github.event.repository.owner.login }}
-            repository: ${{ github.event.repository.name }}
-            login: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_PASSWORD }}
-            ## `from` is long SHA
-            to: ${{ github.event.release.tag_name }}
-            use_metadata: true
+      - name: Docker image promote
+        uses: cloudposse/github-action-docker-promote@main
+        id: promote
+        with:
+          registry: registry.hub.docker.com
+          organization: ${{ github.event.repository.owner.login }}
+          repository: ${{ github.event.repository.name }}
+          login: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ## `from` is long SHA
+          to: ${{ github.event.release.tag_name }}
+          use_metadata: true
 
-      outputs:
-        image: ${{ steps.promote.outputs.image }}
-        tag: ${{ steps.promote.outputs.tag }}  
+    outputs:
+      image: ${{ steps.promote.outputs.image }}
+      tag: ${{ steps.promote.outputs.tag }}
 ```
 
-
-
-
-
-
 ## Inputs
-<!-- markdownlint-disable -->
-| Name | Description | Default | Required |
-|------|-------------|---------|----------|
-| from | Source tag | N/A | false |
-| image\_name | Image name (excluding registry). Defaults to {{$organization/$repository}}. |  | false |
-| login | Docker login |  | false |
-| organization | Organization | N/A | true |
-| password | Docker password |  | false |
-| promote-retry-max-attempts | Promote retry max attempts | 3 | false |
-| promote-retry-timeout-seconds | Promote retry timeout seconds | 15 | false |
-| registry | Docker registry | N/A | true |
-| repository | Repository | N/A | true |
-| to | Target tags | N/A | false |
-| use\_metadata | Extract target tags from Git reference and GitHub events | true | false |
-<!-- markdownlint-restore -->
 
+<!-- markdownlint-disable -->
+
+| Name                          | Description                                                                 | Default | Required |
+| ----------------------------- | --------------------------------------------------------------------------- | ------- | -------- |
+| from                          | Source tag                                                                  | N/A     | false    |
+| image_name                    | Image name (excluding registry). Defaults to {{$organization/$repository}}. |         | false    |
+| login                         | Docker login                                                                |         | false    |
+| organization                  | Organization                                                                | N/A     | true     |
+| password                      | Docker password                                                             |         | false    |
+| promote-retry-max-attempts    | Promote retry max attempts                                                  | 3       | false    |
+| promote-retry-timeout-seconds | Promote retry timeout seconds                                               | 15      | false    |
+| registry                      | Docker registry                                                             | N/A     | true     |
+| repository                    | Repository                                                                  | N/A     | true     |
+| to                            | Target tags                                                                 | N/A     | false    |
+| use_metadata                  | Extract target tags from Git reference and GitHub events                    | true    | false    |
+
+<!-- markdownlint-restore -->
 
 ## Outputs
+
 <!-- markdownlint-disable -->
-| Name | Description |
-|------|-------------|
+
+| Name  | Description       |
+| ----- | ----------------- |
 | image | Docker image name |
-| tag | Docker image tag |
+| tag   | Docker image tag  |
+
 <!-- markdownlint-restore -->
-
-
-
 
 ## Related Projects
 
@@ -201,7 +189,6 @@ Check out these related projects.
 
 - [github-action-docker-build-push](https://github.com/cloudposse/github-action-docker-build-push) - Build Docker image and push it
 - [github-action-docker-image-exists](https://github.com/cloudposse/github-action-docker-image-exists) - Check if docker image exists by pulling it
-
 
 ## References
 
@@ -211,14 +198,9 @@ For additional context, refer to some of these links.
 - [github-actions-workflows](https://github.com/cloudposse/github-actions-workflows) - Reusable workflows for different types of projects
 - [example-github-action-release-workflow](https://github.com/cloudposse/example-github-action-release-workflow) - Example application with complicated release workflow
 
-
-
-
 ## ✨ Contributing
 
 This project is under active development, and we encourage contributions from our community.
-
-
 
 Many thanks to our outstanding contributors:
 
@@ -229,15 +211,15 @@ Many thanks to our outstanding contributors:
 For 🐛 bug reports & feature requests, please use the [issue tracker](https://github.com/cloudposse/github-action-docker-promote/issues).
 
 In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
- 1. Review our [Code of Conduct](https://github.com/cloudposse/github-action-docker-promote/?tab=coc-ov-file#code-of-conduct) and [Contributor Guidelines](https://github.com/cloudposse/.github/blob/main/CONTRIBUTING.md).
- 2. **Fork** the repo on GitHub
- 3. **Clone** the project to your own machine
- 4. **Commit** changes to your own branch
- 5. **Push** your work back up to your fork
- 6. Submit a **Pull Request** so that we can review your changes
+
+1.  Review our [Code of Conduct](https://github.com/cloudposse/github-action-docker-promote/?tab=coc-ov-file#code-of-conduct) and [Contributor Guidelines](https://github.com/cloudposse/.github/blob/main/CONTRIBUTING.md).
+2.  **Fork** the repo on GitHub
+3.  **Clone** the project to your own machine
+4.  **Commit** changes to your own branch
+5.  **Push** your work back up to your fork
+6.  Submit a **Pull Request** so that we can review your changes
 
 **NOTE:** Be sure to merge the latest changes from "upstream" before making a pull request!
-
 
 ## Running Terraform Tests
 
@@ -248,31 +230,32 @@ All tests are located in the [`test/`](test) folder.
 Under the hood, tests are powered by Terratest together with our internal [Test Helpers](https://github.com/cloudposse/test-helpers) library, providing robust infrastructure validation.
 
 Setup dependencies:
+
 - Install Atmos ([installation guide](https://atmos.tools/install/))
 - Install Go [1.24+ or newer](https://go.dev/doc/install)
 - Install Terraform or OpenTofu
 
 To run tests:
 
-- Run all tests:  
+- Run all tests:
   ```sh
   atmos test run
   ```
-- Clean up test artifacts:  
+- Clean up test artifacts:
   ```sh
   atmos test clean
   ```
-- Explore additional test options:  
+- Explore additional test options:
   ```sh
   atmos test --help
   ```
-The configuration for test commands is centrally managed. To review what's being imported, see the [`atmos.yaml`](https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/.github/atmos/terraform-module.yaml) file.
+  The configuration for test commands is centrally managed. To review what's being imported, see the [`atmos.yaml`](https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/.github/atmos/terraform-module.yaml) file.
 
 Learn more about our [automated testing in our documentation](https://docs.cloudposse.com/community/contribute/automated-testing/) or implementing [custom commands](https://atmos.tools/core-concepts/custom-commands/) with atmos.
 
 ### 🌎 Slack Community
 
-Join our [Open Source Community](https://cpco.io/slack?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content=slack) on Slack. It's **FREE** for everyone! Our "SweetOps" community is where you get to talk with others who share a similar vision for how to rollout and manage infrastructure. This is the best place to talk shop, ask questions, solicit feedback, and work together as a community to build totally *sweet* infrastructure.
+Join our [Open Source Community](https://cpco.io/slack?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content=slack) on Slack. It's **FREE** for everyone! Our "SweetOps" community is where you get to talk with others who share a similar vision for how to rollout and manage infrastructure. This is the best place to talk shop, ask questions, solicit feedback, and work together as a community to build totally _sweet_ infrastructure.
 
 ### 📰 Newsletter
 
@@ -283,6 +266,7 @@ Dropped straight into your Inbox every week — and usually a 5-minute read.
 
 [Join us every Wednesday via Zoom](https://cloudposse.com/office-hours?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content=office_hours) for your weekly dose of insider DevOps trends, AWS news and Terraform insights, all sourced from our SweetOps community, plus a _live Q&A_ that you can’t find anywhere else.
 It's **FREE** for everyone!
+
 ## License
 
 <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge" alt="License"></a>
@@ -312,16 +296,16 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ```
+
 </details>
 
 ## Trademarks
 
 All other trademarks referenced herein are the property of their respective owners.
 
-
 ---
-Copyright © 2017-2025 [Cloud Posse, LLC](https://cpco.io/copyright)
 
+Copyright © 2017-2025 [Cloud Posse, LLC](https://cpco.io/copyright)
 
 <a href="https://cloudposse.com/readme/footer/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content=readme_footer_link"><img alt="README footer" src="https://cloudposse.com/readme/footer/img"/></a>
 
