@@ -134,7 +134,7 @@ runs:
         shell: bash
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
         max_attempts: ${{ inputs.promote-retry-max-attempts }}
-        retry_on: timeout
+        retry_on: any
         command: |
           docker pull ${{ steps.from.outputs.tags }}
           
