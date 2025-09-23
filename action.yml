@@ -128,6 +128,7 @@ runs:
         flavor: ${{ steps.to_tags_config.outputs.flavor }}
 
     - name: Promote
+      id: promote
       uses: nick-fields/retry@v3
       with:
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
