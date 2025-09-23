@@ -36,6 +36,15 @@ inputs:
     description: 'Docker password'
     required: false
     default: ''
+  promote-retry-max-attempts:
+    description: 'Promote retry max attempts'
+    required: false
+    default: '3'
+  promote-retry-timeout-seconds:
+    description: 'Promote retry timeout seconds'
+    required: false
+    default: '15'
+
 outputs:
   image:
     description: "Docker image name"
@@ -119,17 +128,20 @@ runs:
         flavor: ${{ steps.to_tags_config.outputs.flavor }}
 
     - name: Promote
-      id: promote
-      shell: bash
-      run: |
-        docker pull ${{ steps.from.outputs.tags }}
-        
-        TAGS=(${{ steps.meta.outputs.tags }})        
-        for value in "${TAGS[@]}"
-        do
-          docker tag ${{ steps.from.outputs.tags }} ${value}
-          docker push ${value}
-        done
+      uses: nick-fields/retry@v3
+      with:
+        timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
+        max_attempts: ${{ inputs.promote-retry-max-attempts }}
+        retry_on: timeout
+        command: |
+          docker pull ${{ steps.from.outputs.tags }}
+          
+          TAGS=(${{ steps.meta.outputs.tags }})        
+          for value in "${TAGS[@]}"
+          do
+            docker tag ${{ steps.from.outputs.tags }} ${value}
+            docker push ${value}
+          done
 
     - uses: cloudposse/github-action-yaml-config-query@0.1.3
       id: result
