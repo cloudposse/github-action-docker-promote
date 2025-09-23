@@ -44,6 +44,10 @@ inputs:
     description: 'Promote retry timeout seconds'
     required: false
     default: '15'
+  promote-retry-wait-seconds:
+    description: 'Promote retry wait seconds'
+    required: false
+    default: '30'
 
 outputs:
   image:
@@ -133,6 +137,7 @@ runs:
       with:
         shell: bash
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
+        retry_wait_seconds: ${{ inputs.promote-retry-wait-seconds }}
         max_attempts: ${{ inputs.promote-retry-max-attempts }}
         retry_on: any
         command: |
