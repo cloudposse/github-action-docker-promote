@@ -166,8 +166,31 @@ If you skip `from` tag then it would be populated as SHA of the current commit i
 
 
 
+## Inputs
+<!-- markdownlint-disable -->
+| Name | Description | Default | Required |
+|------|-------------|---------|----------|
+| from | Source tag | N/A | false |
+| image\_name | Image name (excluding registry). Defaults to {{$organization/$repository}}. |  | false |
+| login | Docker login |  | false |
+| organization | Organization | N/A | true |
+| password | Docker password |  | false |
+| promote-retry-max-attempts | Promote retry max attempts | 3 | false |
+| promote-retry-timeout-seconds | Promote retry timeout seconds | 15 | false |
+| registry | Docker registry | N/A | true |
+| repository | Repository | N/A | true |
+| to | Target tags | N/A | false |
+| use\_metadata | Extract target tags from Git reference and GitHub events | true | false |
+<!-- markdownlint-restore -->
 
 
+## Outputs
+<!-- markdownlint-disable -->
+| Name | Description |
+|------|-------------|
+| image | Docker image name |
+| tag | Docker image tag |
+<!-- markdownlint-restore -->
 
 
 
@@ -213,7 +236,10 @@ In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
  5. **Push** your work back up to your fork
  6. Submit a **Pull Request** so that we can review your changes
 
-**NOTE:** Be sure to merge the latest changes from "upstream" before making a pull request!## Running Terraform Tests
+**NOTE:** Be sure to merge the latest changes from "upstream" before making a pull request!
+
+
+## Running Terraform Tests
 
 We use [Atmos](https://atmos.tools) to streamline how Terraform tests are run. It centralizes configuration and wraps common test workflows with easy-to-use commands.
 
