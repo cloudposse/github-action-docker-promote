@@ -131,6 +131,7 @@ runs:
       id: promote
       uses: nick-fields/retry@v3
       with:
+        shell: bash
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
         max_attempts: ${{ inputs.promote-retry-max-attempts }}
         retry_on: timeout
