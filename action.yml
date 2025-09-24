@@ -43,7 +43,7 @@ inputs:
   promote-retry-timeout-seconds:
     description: 'Promote retry timeout seconds'
     required: false
-    default: '15'
+    default: '3000'
   promote-retry-wait-seconds:
     description: 'Promote retry wait seconds'
     required: false
