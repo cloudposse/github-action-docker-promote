@@ -133,7 +133,7 @@ runs:
 
     - name: Promote
       id: promote
-      uses: nick-fields/retry@v3
+      uses: nick-fields/retry@v4
       with:
         shell: bash
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}
