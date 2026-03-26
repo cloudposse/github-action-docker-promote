@@ -1,8 +1,12 @@
 
 
 <!-- markdownlint-disable -->
-# github-action-docker-promote <a href="https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content="><img align="right" src="https://cloudposse.com/logo-300x69.svg" width="150" /></a>
-<a href="https://github.com/cloudposse/github-action-docker-promote/releases/latest"><img src="https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg" alt="Latest Release"/></a><a href="https://slack.cloudposse.com"><img src="https://slack.cloudposse.com/badge.svg" alt="Slack Community"/></a>
+<a href="https://cpco.io/homepage"><img src="https://github.com/cloudposse/github-action-docker-promote/blob/main/.github/banner.png?raw=true" alt="Project Banner"/></a><br/>
+
+
+<p align="right"><a href="https://github.com/cloudposse/github-action-docker-promote/releases/latest"><img src="https://img.shields.io/github/release/cloudposse/github-action-docker-promote.svg?style=for-the-badge" alt="Latest Release"/></a><a href="https://github.com/cloudposse/github-action-docker-promote/commits"><img src="https://img.shields.io/github/last-commit/cloudposse/github-action-docker-promote.svg?style=for-the-badge" alt="Last Updated"/></a><a href="https://cloudposse.com/slack"><img src="https://slack.cloudposse.com/for-the-badge.svg" alt="Slack Community"/></a>
+
+</p>
 <!-- markdownlint-restore -->
 
 <!--
@@ -190,6 +194,8 @@ If you skip `from` tag then it would be populated as SHA of the current commit i
 <!-- markdownlint-restore -->
 
 
+
+
 ## Related Projects
 
 Check out these related projects.
@@ -283,7 +289,7 @@ All other trademarks referenced herein are the property of their respective owne
 
 
 ---
-Copyright © 2017-2024 [Cloud Posse, LLC](https://cpco.io/copyright)
+Copyright © 2017-2026 [Cloud Posse, LLC](https://cpco.io/copyright)
 
 
 <a href="https://cloudposse.com/readme/footer/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/github-action-docker-promote&utm_content=readme_footer_link"><img alt="README footer" src="https://cloudposse.com/readme/footer/img"/></a>
