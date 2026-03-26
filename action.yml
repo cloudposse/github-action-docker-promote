@@ -76,7 +76,7 @@ runs:
             image : ${{ inputs.registry }}/${{ inputs.image_name }}
 
     - name: Login
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       if: ${{ contains(inputs.registry, '.amazonaws.com') || ( inputs.login != '' && inputs.password != '' ) }}
       with:
         registry: ${{ inputs.registry }}
@@ -95,7 +95,7 @@ runs:
 
     - name: Get `from` baseed on metadata
       id: from
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ steps.context.outputs.image }}
         tags: ${{ steps.from_tags_config.outputs.tags }}
@@ -125,7 +125,7 @@ runs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ steps.context.outputs.image }}
         tags: ${{ steps.to_tags_config.outputs.tags }}
@@ -133,7 +133,7 @@ runs:
 
     - name: Promote
       id: promote
-      uses: nick-fields/retry@v3
+      uses: nick-fields/retry@v4
       with:
         shell: bash
         timeout_seconds: ${{ inputs.promote-retry-timeout-seconds }}

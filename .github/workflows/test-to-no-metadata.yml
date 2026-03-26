@@ -28,11 +28,11 @@ jobs:
     needs: [setup]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build
         id: build
-        uses: cloudposse/github-action-docker-build-push@1.14.0
+        uses: cloudposse/github-action-docker-build-push@v3.0.0
         with:
           registry: registry.hub.docker.com
           organization: ${{ github.event.repository.owner.login }}
