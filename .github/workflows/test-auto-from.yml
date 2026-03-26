@@ -16,10 +16,6 @@ on:
         required: false
         type: "string"
 
-concurrency:
-  group: tests-${{ inputs.ref || inputs.sha }}
-  cancel-in-progress: false        
-
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -30,6 +26,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     continue-on-error: true
+    concurrency:
+      group: tests-${{ inputs.ref || inputs.sha }}
+      cancel-in-progress: false    
     needs: [setup]
     steps:
       - name: Checkout
