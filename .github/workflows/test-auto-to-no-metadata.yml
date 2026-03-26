@@ -15,6 +15,11 @@ on:
         description: "The sha of the commit that triggered the workflow run"
         required: false
         type: "string"
+
+concurrency:
+  group: tests-${{ inputs.ref || inputs.sha }}
+  cancel-in-progress: true        
+        
 jobs:
   setup:
     runs-on: ubuntu-latest
