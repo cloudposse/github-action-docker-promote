@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     concurrency:
-      group: tests-${{ inputs.ref || inputs.sha }}
+      group: tests-3-${{ inputs.ref || inputs.sha }}
       cancel-in-progress: false    
     needs: [setup]
     steps:
