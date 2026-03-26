@@ -28,7 +28,7 @@ jobs:
     needs: [setup]
     continue-on-error: true
     concurrency:
-      group: tests-${{ inputs.ref || inputs.sha }}
+      group: tests-2-${{ inputs.ref || inputs.sha }}
       cancel-in-progress: false
     steps:
       - name: Checkout
