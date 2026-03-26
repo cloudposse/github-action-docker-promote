@@ -60,15 +60,15 @@ runs:
   using: "composite"
   steps:
     - name: Validate inputs - `use_metadata` should be true or `to` should not be empty
-      uses: nick-fields/assert-action@v2
+      uses: nick-fields/assert-action@v3.0.0
       with:
         expected: true
         actual: ${{ ( inputs.use_metadata == 'true' ) || ( inputs.to != '' ) }}
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: context
       with:
-        query: .${{ inputs.image_name == '' }}
+        query: ."${{ inputs.image_name == '' }}"
         config: |-
           true:
             image : ${{ inputs.registry }}/${{ inputs.organization }}/${{ inputs.repository }}
@@ -83,10 +83,10 @@ runs:
         username: ${{ inputs.login }}
         password: ${{ inputs.password }}
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: from_tags_config
       with:
-        query: .${{ inputs.from == '' }}
+        query: ."${{ inputs.from == '' }}"
         config: |-
           true: 
             tags: type=sha,format=long
@@ -101,10 +101,10 @@ runs:
         tags: ${{ steps.from_tags_config.outputs.tags }}
         flavor: latest=false
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: to_tags_config
       with:
-        query: .${{ inputs.use_metadata == 'true' }}
+        query: ."${{ inputs.use_metadata == 'true' }}"
         config: |-
           true: 
             tags: |-        
@@ -150,10 +150,10 @@ runs:
             docker push ${value}
           done
 
-    - uses: cloudposse/github-action-yaml-config-query@0.1.3
+    - uses: cloudposse/github-action-yaml-config-query@v1.0.0
       id: result
       with:
-        query: .${{ inputs.to == '' }}
+        query: ."${{ inputs.to == '' }}"
         config: |-
           true: 
             tag: ${{ steps.meta.outputs.version }}
