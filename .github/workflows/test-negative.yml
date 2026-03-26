@@ -18,7 +18,7 @@ on:
 
 concurrency:
   group: tests-${{ inputs.ref || inputs.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: false
         
 jobs:
   setup:
