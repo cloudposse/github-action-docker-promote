@@ -5,8 +5,16 @@ on:
 #  # Added pull_request to register workflow from the PR.
 #  # Read more https://stackoverflow.com/questions/63362126/github-actions-how-to-run-a-workflow-created-on-a-non-master-branch-from-the-wo
 #  pull_request: {}
-  workflow_dispatch: {}
-
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "The fully-formed ref of the branch or tag that triggered the workflow run"
+        required: false
+        type: "string"
+      sha:
+        description: "The sha of the commit that triggered the workflow run"
+        required: false
+        type: "string"
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -20,11 +28,11 @@ jobs:
     needs: [setup]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build
         id: build
-        uses: cloudposse/github-action-docker-build-push@1.14.0
+        uses: cloudposse/github-action-docker-build-push@v3.0.0
         with:
           registry: registry.hub.docker.com
           organization: ${{ github.event.repository.owner.login }}
