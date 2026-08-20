@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         id: build
-        uses: cloudposse/github-action-docker-build-push@v3.0.0
+        uses: cloudposse/github-action-docker-build-push@v3.2.1
         with:
           registry: registry.hub.docker.com
           organization: ${{ github.event.repository.owner.login }}
